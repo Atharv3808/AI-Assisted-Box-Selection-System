@@ -128,20 +128,23 @@ class TestBoxSelectionEngine:
             "volume_utilization": "40.00%"
         }
         explanation = provider.generate_explanation(context)
-        assert "AI Recommendation" in explanation
-        assert "Small Box" in explanation
+        assert "Small Box is recommended" in explanation
+        assert "lowest-cost feasible box" in explanation
         assert "₹15.00" in explanation
 
-    def test_no_suitable_box(self):
+
+    def test_explicit_check_statuses(self):
         product = Product.objects.create(
-            name="Giant Item", length=Decimal("100"), width=Decimal("100"), height=Decimal("100"), weight=Decimal("50.00")
+            name="Laptop", length=Decimal("35"), width=Decimal("25"), height=Decimal("2"), weight=Decimal("2.50")
         )
-        Box.objects.create(
-            name="Tiny Box", internal_length=Decimal("10"), internal_width=Decimal("10"), internal_height=Decimal("10"),
-            max_weight=Decimal("5.00"), cost=Decimal("5.00")
+        small_box = Box.objects.create(
+            name="Small Box", internal_length=Decimal("20"), internal_width=Decimal("15"), internal_height=Decimal("10"),
+            max_weight=Decimal("5.00"), cost=Decimal("15.00")
         )
         items = [{"product": product, "quantity": 1}]
-        res = recommend_box(items)
-        assert res["recommendation"] is None
-        assert len(res["evaluated_boxes"]) == 1
-        assert res["evaluated_boxes"][0]["status"] == "rejected"
+        _, analysis = evaluate_boxes_feasibility(items, boxes=[small_box])
+        assert analysis[0]["status"] == "rejected"
+        assert analysis[0]["dimensional_check"] == "failed"
+        assert analysis[0]["weight_check"] == "passed"
+        assert analysis[0]["volume_check"] == "passed"
+

@@ -85,15 +85,20 @@ def evaluate_boxes_feasibility(
 
     for box in boxes:
         reasons: List[str] = []
+        weight_passed = True
+        volume_passed = True
+        dimensional_passed = True
 
         # Rule 1: Max Weight Check
         if total_weight > box.max_weight:
+            weight_passed = False
             reasons.append(
                 f"Maximum weight is {box.max_weight:.2f} kg but order weight is {total_weight:.2f} kg"
             )
 
         # Rule 2: Volume Check
         if total_volume > box.internal_volume:
+            volume_passed = False
             reasons.append(
                 f"Total product volume is {total_volume:.2f} cm³ but box internal volume is {box.internal_volume:.2f} cm³"
             )
@@ -105,28 +110,26 @@ def evaluate_boxes_feasibility(
                 product.length, product.width, product.height,
                 box.internal_length, box.internal_width, box.internal_height
             ):
+                dimensional_passed = False
                 reasons.append(
                     f"Product '{product.name}' ({product.length}x{product.width}x{product.height} cm) "
                     f"exceeds box dimensions ({box.internal_length}x{box.internal_width}x{box.internal_height} cm) in all orientations"
                 )
 
+        status_str = "feasible" if not reasons else "rejected"
         if not reasons:
             feasible_boxes.append(box)
-            evaluated_boxes_analysis.append({
-                "box": box.name,
-                "box_id": box.id,
-                "cost": str(box.cost),
-                "status": "feasible",
-                "reasons": []
-            })
-        else:
-            evaluated_boxes_analysis.append({
-                "box": box.name,
-                "box_id": box.id,
-                "cost": str(box.cost),
-                "status": "rejected",
-                "reasons": reasons
-            })
+
+        evaluated_boxes_analysis.append({
+            "box": box.name,
+            "box_id": box.id,
+            "cost": str(box.cost),
+            "status": status_str,
+            "dimensional_check": "passed" if dimensional_passed else "failed",
+            "weight_check": "passed" if weight_passed else "failed",
+            "volume_check": "passed" if volume_passed else "failed",
+            "reasons": reasons
+        })
 
     return feasible_boxes, evaluated_boxes_analysis
 
@@ -167,13 +170,9 @@ class MockAIProvider(BaseAIProvider):
 
         box_name = context.get('recommended_box', 'Box')
         cost = context.get('cost', '0.00')
-        weight_util = context.get('weight_utilization', '0.00%')
-        vol_util = context.get('volume_utilization', '0.00%')
 
-        return (
-            f"AI Recommendation: {box_name} is the optimal, lowest-cost box (₹{cost}) "
-            f"satisfying all dimensional, volume ({vol_util} utilization), and weight ({weight_util} utilization) constraints."
-        )
+        return f"{box_name} is recommended because it is the lowest-cost feasible box (₹{cost}) for this order."
+
 
 
 class AIRecommendationService:

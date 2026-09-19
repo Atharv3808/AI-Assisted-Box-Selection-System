@@ -29,6 +29,19 @@ class RecommendBoxAPIView(APIView):
     POST /api/orders/recommend-box/
     """
 
+    def get(self, request, *args, **kwargs):
+        """Friendly GET response with instructions and example payload for browser exploration."""
+        return Response({
+            "message": "Send a POST request to this endpoint to evaluate an order and recommend the optimal box.",
+            "method": "POST",
+            "example_request": {
+                "items": [
+                    {"product_id": 1, "quantity": 1},
+                    {"product_id": 2, "quantity": 2}
+                ]
+            }
+        }, status=status.HTTP_200_OK)
+
     def post(self, request, *args, **kwargs):
         serializer = RecommendBoxRequestSerializer(data=request.data)
         if not serializer.is_valid():
@@ -45,4 +58,5 @@ class RecommendBoxAPIView(APIView):
             return Response(result, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         return Response(result, status=status.HTTP_200_OK)
+
 

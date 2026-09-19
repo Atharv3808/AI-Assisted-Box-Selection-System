@@ -374,14 +374,14 @@ POST /api/orders/recommend-box/
         "dimensions": "36.00x26.00x15.00 cm",
         "max_weight": "10.00 kg"
     },
-    "reason": "AI Recommendation: Medium Box is the optimal, lowest-cost box (₹30.00) satisfying all dimensional, volume (20.50% utilization), and weight (31.00% utilization) constraints.",
+    "reason": "Medium Box is recommended because it is the lowest-cost feasible box (₹30.00) for this order.",
     "order_summary": {
         "total_weight": "3.10",
-        "total_volume": "2990.00"
+        "total_volume": "1990.00"
     },
     "utilization": {
         "weight": "31.00%",
-        "volume": "20.50%"
+        "volume": "14.17%"
     },
     "evaluated_boxes": [
         {
@@ -389,6 +389,9 @@ POST /api/orders/recommend-box/
             "box_id": 1,
             "cost": "15.00",
             "status": "rejected",
+            "dimensional_check": "failed",
+            "weight_check": "passed",
+            "volume_check": "passed",
             "reasons": [
                 "Product 'Laptop' (35.00x25.00x2.00 cm) exceeds box dimensions (20.00x15.00x10.00 cm) in all orientations"
             ]
@@ -398,11 +401,15 @@ POST /api/orders/recommend-box/
             "box_id": 2,
             "cost": "30.00",
             "status": "feasible",
+            "dimensional_check": "passed",
+            "weight_check": "passed",
+            "volume_check": "passed",
             "reasons": []
         }
     ]
 }
 ```
+
 
 ---
 
@@ -501,8 +508,9 @@ The test suite covers:
 ### Latest Test Run
 
 ```text
-22 passed in 0.28s
+23 passed in 0.28s
 ```
+
 
 Django system check:
 
@@ -649,7 +657,7 @@ TEST_OUTPUT.md
 
 ## What Did You Learn?
 
-**[USER MUST WRITE THIS SECTION THEMSELVES]**
+So through this assignment I learned how to build a Django REST API with proper business logic.i learned how to use logic to separate box selection with dimensions weight and volume and cost. I use ai only as an assist layer and use logic to separate box . this assignment also help to enhance my automated testing with GitHub actions , handling test case and I learned that when using ai tools I should verify and test the generated code instead of accepting the code blindly 
 
 ---
 
