@@ -191,8 +191,9 @@ pytest packaging/tests/ -v
 The final test run completed with:
 
 ```text
-22 passed in 0.28 seconds
+23 passed in 0.32 seconds
 ```
+
 
 The tests covered:
 
